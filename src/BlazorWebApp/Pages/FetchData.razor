@@ -1,13 +1,14 @@
 ﻿@page "/fetchdata"
+@using System.Text.Json.Serialization
 @inject HttpClient Http
 
-<PageTitle>Weather forecast</PageTitle>
+<PageTitle>Authors</PageTitle>
 
-<h1>Weather forecast</h1>
+<h1>Authors</h1>
 
 <p>This component demonstrates fetching data from the server.</p>
 
-@if (forecasts == null)
+@if (_authorList?.Authors == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -16,20 +17,20 @@ else
     <table class="table">
         <thead>
             <tr>
-                <th>Date</th>
-                <th>Temp. (C)</th>
-                <th>Temp. (F)</th>
-                <th>Summary</th>
+                <th>Id</th>
+                <th>First Name</th>
+                <th>Middle Name</th>
+                <th>Last Name</th>
             </tr>
         </thead>
         <tbody>
-            @foreach (var forecast in forecasts)
+            @foreach (var author in _authorList.Authors)
             {
                 <tr>
-                    <td>@forecast.Date.ToShortDateString()</td>
-                    <td>@forecast.TemperatureC</td>
-                    <td>@forecast.TemperatureF</td>
-                    <td>@forecast.Summary</td>
+                    <td>@author.Id</td>
+                    <td>@author.FirstName</td>
+                    <td>@author.MiddleName</td>
+                    <td>@author.LastName</td>
                 </tr>
             }
         </tbody>
@@ -37,21 +38,31 @@ else
 }
 
 @code {
-    private WeatherForecast[]? forecasts;
+    private AuthorList? _authorList;
 
     protected override async Task OnInitializedAsync()
     {
-        forecasts = await Http.GetFromJsonAsync<WeatherForecast[]>("sample-data/weather.json");
+        _authorList = await Http.GetFromJsonAsync<AuthorList>("data-api/rest/Author");
     }
 
-    public class WeatherForecast
+    public class AuthorList
     {
-        public DateTime Date { get; set; }
+        [JsonPropertyName("value")]
+        public Author[]? Authors { get; set; }
+    }
 
-        public int TemperatureC { get; set; }
+    public class Author
+    {
+        [JsonPropertyName("id")]
+        public int Id { get; set; }
 
-        public string? Summary { get; set; }
+        [JsonPropertyName("first_name")]
+        public string? FirstName { get; set; }
 
-        public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
+        [JsonPropertyName("middle_name")]
+        public string? MiddleName { get; set; }
+
+        [JsonPropertyName("last_name")]
+        public string? LastName { get; set; }
     }
 }
